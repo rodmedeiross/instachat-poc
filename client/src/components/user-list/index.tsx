@@ -22,10 +22,12 @@ const useStyles = makeStyles({
 
 interface Props {
   users: User[];
+  currentUserId?: string;
+  onUserSelect(userId: string): void;
 }
 
 export function UserList(props: Props) {
-  const { users } = props || {};
+  const { users, onUserSelect, currentUserId } = props || {};
 
   console.log(users);
 
@@ -36,7 +38,14 @@ export function UserList(props: Props) {
       <List component="nav">
         {users.map((x) => (
           <>
-            <ListItem alignItems="flex-start">
+            <ListItem
+              selected={x.id === currentUserId}
+              button
+              alignItems="flex-start"
+              onClick={() => {
+                onUserSelect(x.id);
+              }}
+            >
               <ListItemAvatar>
                 <Avatar alt={x.name} src={x.picture} />
               </ListItemAvatar>

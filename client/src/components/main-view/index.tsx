@@ -1,4 +1,4 @@
-import React from "react";
+import React, { useState } from "react";
 import { makeStyles } from "@material-ui/styles";
 import { ChatHeader } from "../chat-header";
 import { ChatContainer } from "../chat-container";
@@ -31,24 +31,41 @@ const users: User[] = [
     name: "Fernando",
     picture: "",
     status: "online",
+    id: "1",
   },
   {
     name: "Rodrigo",
     picture: "",
     status: "offline",
+    id: "2",
+  },
+  {
+    name: "Luis",
+    picture: "",
+    status: "online",
+    id: "3",
   },
 ];
 
-export default function MainView() {
+export default function MainView(props: any) {
   const classes = useStyles();
+  const [currentUserId, setCurrentUserId] = useState<string>();
+  const handleCorrentUse = (userId: string) => {
+    setCurrentUserId(userId);
+  };
+  const getUserById = (id?: string) => users.find((x) => x.id === id);
 
   return (
     <div className={classes.container}>
       <div className={classes.list}>
-        <UserList users={users} />
+        <UserList
+          onUserSelect={handleCorrentUse}
+          users={users}
+          currentUserId={currentUserId}
+        />
       </div>
       <div className={classes.userheader}>
-        <ChatHeader />
+        <ChatHeader user={getUserById(currentUserId)} />
       </div>
       <div className={classes.chatContainer}>
         <ChatContainer />
