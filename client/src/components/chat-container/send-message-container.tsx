@@ -1,6 +1,7 @@
 import {
   FormControl,
   IconButton,
+  InputAdornment,
   makeStyles,
   OutlinedInput,
 } from "@material-ui/core";
@@ -20,11 +21,18 @@ export function SendMessageContainer() {
   return (
     <div className={classes.container}>
       <FormControl style={{ flexGrow: 1 }} variant="outlined">
-        <OutlinedInput multiline rows={3} />
+        <OutlinedInput
+          multiline
+          rows={3}
+          endAdornment={
+            <InputAdornment position="end">
+              <IconButton onClick={() => {}} onMouseDown={() => {}}>
+                <SendIcon />
+              </IconButton>
+            </InputAdornment>
+          }
+        />
       </FormControl>
-      <IconButton color="primary" component="span">
-        <SendIcon />
-      </IconButton>
     </div>
   );
 }

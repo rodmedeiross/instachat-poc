@@ -1,0 +1,73 @@
+[
+  {
+    "id": "rodrigo",
+    "name": "Rodrigo",
+    "status": "online",
+    "sendMessages": [
+      {
+        "date": "2021-09-18T23:28:06.992Z",
+        "message": "Oi"
+      },
+      {
+        "date": "2021-09-18T23:28:06.992Z",
+        "message": "Fala ai"
+      }
+    ],
+    "receivedMessages": [
+      {
+        "date": "2021-09-18T23:28:06.992Z",
+        "message": "tudo bem?"
+      }
+    ]
+  },
+  {
+    "id": "fernando",
+    "name": "Fernando",
+    "status": "offline",
+    "sendMessages": [
+      {
+        "date": "2021-09-18T23:28:06.992Z",
+        "message": "f"
+      },
+      {
+        "date": "2021-09-18T23:28:06.992Z",
+        "message": "Fala ai"
+      }
+    ],
+    "receivedMessages": [
+      {
+        "date": "2021-09-18T23:28:06.992Z",
+        "message": "Oi"
+      },
+      {
+        "date": "2021-09-18T23:28:06.992Z",
+        "message": "Fala ai"
+      }
+    ]
+  },
+  {
+    "id": "lais",
+    "name": "Laís",
+    "status": "offline",
+    "sendMessages": [
+      {
+        "date": "2021-09-18T23:28:06.992Z",
+        "message": "Oi"
+      },
+      {
+        "date": "2021-09-18T23:28:06.992Z",
+        "message": "Fala ai"
+      }
+    ],
+    "receivedMessages": [
+      {
+        "date": "2021-09-18T23:28:06.992Z",
+        "message": "Oi"
+      },
+      {
+        "date": "2021-09-18T23:28:06.992Z",
+        "message": "Fala ai"
+      }
+    ]
+  }
+]

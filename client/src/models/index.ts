@@ -1,10 +1,15 @@
 export interface User {
   id: string;
   name: string;
-  status: Status;
-  picture: string;
-  lastMessage?: string;
-  newMessagesCount?: number;
+  status: string;
+  sendMessages?: Message[];
+  receivedMessages?: Message[];
+  picture?: string;
+}
+
+export interface Message {
+  date: string;
+  message: string;
 }
 
 export type Status = "online" | "offline";

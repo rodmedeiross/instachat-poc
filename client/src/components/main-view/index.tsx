@@ -3,6 +3,8 @@ import { makeStyles } from "@material-ui/styles";
 import { ChatHeader } from "../chat-header";
 import { ChatContainer } from "../chat-container";
 import { UserList } from "../user-list";
+import users from "../../infrastructure/user-mock.json";
+import { Typography } from "@material-ui/core";
 import { User } from "../../models";
 
 const useStyles = makeStyles({
@@ -26,50 +28,53 @@ const useStyles = makeStyles({
   },
 });
 
-const users: User[] = [
-  {
-    name: "Fernando",
-    picture: "",
-    status: "online",
-    id: "1",
-  },
-  {
-    name: "Rodrigo",
-    picture: "",
-    status: "offline",
-    id: "2",
-  },
-  {
-    name: "Luis",
-    picture: "",
-    status: "online",
-    id: "3",
-  },
-];
-
 export default function MainView(props: any) {
   const classes = useStyles();
+
   const [currentUserId, setCurrentUserId] = useState<string>();
-  const handleCorrentUse = (userId: string) => {
+
+  const handleCurrentUse = (userId: string) => {
     setCurrentUserId(userId);
   };
+
   const getUserById = (id?: string) => users.find((x) => x.id === id);
 
   return (
     <div className={classes.container}>
       <div className={classes.list}>
         <UserList
-          onUserSelect={handleCorrentUse}
+          onUserSelect={handleCurrentUse}
           users={users}
           currentUserId={currentUserId}
         />
       </div>
-      <div className={classes.userheader}>
-        <ChatHeader user={getUserById(currentUserId)} />
-      </div>
-      <div className={classes.chatContainer}>
-        <ChatContainer />
-      </div>
+      {currentUserId ? (
+        <>
+          <div className={classes.userheader}>
+            <ChatHeader user={getUserById(currentUserId)} />
+          </div>
+          <div className={classes.chatContainer}>
+            <ChatContainer user={getUserById(currentUserId) as User} />
+          </div>
+        </>
+      ) : (
+        <NoContent />
+      )}
+    </div>
+  );
+}
+
+function NoContent() {
+  return (
+    <div
+      style={{
+        display: "flex",
+        justifyContent: "center",
+        alignItems: "center",
+        height: "100%",
+      }}
+    >
+      <Typography>No User Selected</Typography>
     </div>
   );
 }

@@ -51,7 +51,7 @@ export function UserList(props: Props) {
               </ListItemAvatar>
               <ListItemText
                 primary={x.name}
-                secondary={<React.Fragment>{x.lastMessage}</React.Fragment>}
+                // secondary={<>{x.lastMessage}</>}
               />
             </ListItem>
             <Divider />
