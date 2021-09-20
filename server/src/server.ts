@@ -1,10 +1,11 @@
+import "reflect-metadata";
+
 import express, { Express } from "express";
 import cors from "cors";
-import todoRoutes from "./routes";
+import instachatRoutes from "./routes";
 
 const app: Express = express();
 
-const PORT: string | number = process.env.PORT || 4000;
-
+app.use(express.json());
 app.use(cors());
-app.use(todoRoutes);
+app.use(instachatRoutes);
