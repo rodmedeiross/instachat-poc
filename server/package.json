@@ -15,11 +15,12 @@
     "bcryptjs": "^2.4.3",
     "cors": "^2.8.5",
     "express": "^4.17.1",
-    "winston": "3.3.3",
+    "express-validator": "^6.12.1",
     "express-winston": "^4.2.0",
     "pg": "^8.7.1",
     "reflect-metadata": "^0.1.13",
-    "typeorm": "^0.2.37"
+    "typeorm": "^0.2.37",
+    "winston": "3.3.3"
   },
   "devDependencies": {
     "@types/bcryptjs": "^2.4.2",

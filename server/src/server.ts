@@ -8,6 +8,8 @@ import { User, ChatMessage, Chat, UserToChat } from "./models/Entities";
 const winston: any = require("winston");
 const expressWinston = require("express-winston");
 
+const usersRoute = require("./routes/users-route");
+
 // create typeorm connection
 createConnection()
   .then(async (connection) => {
@@ -35,6 +37,8 @@ createConnection()
 
     app.use(express.json());
     app.use(cors());
+
+    app.use("/api/users", usersRoute);
 
     app.get("/users", async (req: Request, res: Response) => {
       const users = await userRepository.find();
