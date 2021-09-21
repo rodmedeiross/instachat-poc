@@ -43,8 +43,8 @@ const formatMessages = (msgs?: Message[], isReceived?: boolean): any[] => {
   return (
     msgs?.map((x) => ({
       position: isReceived ? "left" : "right",
-      text: x.message,
-      date: new Date(x.date),
+      text: x.text,
+      date: Date.parse(x.timestamp),
     })) || []
   );
 };

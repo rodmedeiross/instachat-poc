@@ -3,9 +3,7 @@ import { makeStyles } from "@material-ui/styles";
 import { ChatHeader } from "../chat-header";
 import { ChatContainer } from "../chat-container";
 import { UserList } from "../user-list";
-import users from "../../infrastructure/user-mock.json";
 import { Typography } from "@material-ui/core";
-import { User } from "../../models";
 import { getChats, getDetailChats } from "../../API";
 import { getUsers } from "../../API";
 
@@ -53,24 +51,63 @@ export default function MainView(props: any) {
     setup();
   }, []);
 
-  React.useEffect(() => {
-    const getDetailChat = async () => {
-      try {
-        setDetailChat(
-          await getDetailChats({
-            userId: currentUserId,
-            chatId: currentChatId as string,
-          })
-        );
-      } catch (e) {
-        alert("Error");
-      }
-    };
+  // React.useEffect(() => {
+  //   const getDetailChat = async () => {
+  //     try {
+  //       setDetailChat(
+  //         await getDetailChats({
+  //           userId: currentUserId,
+  //           chatId: currentChatId as string,
+  //         })
+  //       );
+  //     } catch (e) {
+  //       alert("Error");
+  //     }
+  //   };
 
-    if (currentChatId) {
-      getDetailChat();
-    }
-  }, [currentChatId]);
+  //   if (currentChatId) {
+  //     getDetailChat();
+  //   }
+  // }, [currentChatId]);
+
+  // React.useEffect(() => {
+  //   async function getDetailChat() {
+  //     try {
+  //       if (currentUserId && currentChatId) {
+  //         setDetailChat(
+  //           await getDetailChats({
+  //             userId: currentUserId,
+  //             chatId: currentChatId as string,
+  //           })
+  //         );
+  //       }
+  //     } catch (e) {
+  //       alert("Error");
+  //     }
+  //   }
+
+  //   const interval = setInterval(() => {
+  //     getDetailChat();
+  //   }, 1000 * 2);
+
+  //   // const interval = setInterval(async () => {
+  //   //   try {
+  //   //     if (currentUserId && currentChatId) {
+  //   //       setDetailChat(
+  //   //         await getDetailChats({
+  //   //           userId: currentUserId,
+  //   //           chatId: currentChatId as string,
+  //   //         })
+  //   //       );
+  //   //     }
+
+  //   //   } catch (e) {
+  //   //     alert("Error");
+  //   //   }
+  //   // }, 2000);
+
+  //   return () => clearInterval(interval);
+  // }, []);
 
   const handleCurrentGroup = (chatId: string) => {
     setCurrentChat(chatId);
@@ -87,13 +124,13 @@ export default function MainView(props: any) {
           currentGroupId={currentChatId}
         />
       </div>
-      {currentChatId && detailChat ? (
+      {currentUserId && currentChatId ? (
         <>
           <div className={classes.userheader}>
             <ChatHeader chat={chat} />
           </div>
           <div className={classes.chatContainer}>
-            <ChatContainer userId={currentUserId} chat={detailChat} />
+            <ChatContainer userId={currentUserId} chatId={currentChatId} />
           </div>
         </>
       ) : (

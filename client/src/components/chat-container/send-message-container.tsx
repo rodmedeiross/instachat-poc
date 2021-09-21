@@ -17,23 +17,17 @@ const useStyles = makeStyles(() => ({
 }));
 
 interface Props {
-  chatId: string;
-  userId: string;
+  onSendMessage: (message: string) => void;
 }
 
 export function SendMessageContainer(props: Props) {
   const classes = useStyles();
-  const { chatId, userId } = props || {};
+  const { onSendMessage } = props || {};
   const [currentMessage, setCurrentMessage] = React.useState<string>("");
 
-  const handleSubmit = async () => {
+  const handleSubmit = () => {
     setCurrentMessage("");
-
-    await sendMessage({
-      chatId,
-      userId,
-      message: currentMessage,
-    });
+    onSendMessage(currentMessage);
   };
 
   return (
@@ -44,6 +38,12 @@ export function SendMessageContainer(props: Props) {
           rows={3}
           value={currentMessage}
           onChange={(e) => setCurrentMessage(e.target.value)}
+          onKeyPress={(e) => {
+            if (e.key == "Enter") {
+              e.preventDefault();
+              handleSubmit();
+            }
+          }}
           endAdornment={
             <InputAdornment position="end">
               <IconButton onClick={handleSubmit}>

@@ -1,9 +1,10 @@
 import { makeStyles } from "@material-ui/styles";
-import React from "react";
-import { Chat, User } from "../../models";
+import React, { useState } from "react";
+import { Chat } from "../../models";
 import { ChatView } from "./chat-view";
 import { SendMessageContainer } from "./send-message-container";
 import "react-chat-elements/dist/main.css";
+import { getDetailChats, sendMessage } from "../../API";
 
 const useStyles = makeStyles(() => ({
   container: {
@@ -15,23 +16,40 @@ const useStyles = makeStyles(() => ({
 }));
 
 interface Props {
-  chat: Chat;
+  chatId: string;
   userId: string;
 }
 
-export function ChatContainer({ chat, userId }: Props) {
+export function ChatContainer({ chatId, userId }: Props) {
   const classes = useStyles();
 
+  const [chat, setChat] = useState<any>({ messages: [] });
+
+  const getDetailChat = async () => {
+    try {
+      setChat(
+        await getDetailChats({
+          userId,
+          chatId,
+        })
+      );
+    } catch (e) {
+      alert("Error");
+    }
+  };
+
+  React.useEffect(() => {
+    if (chatId) {
+      getDetailChat();
+    }
+  }, [chatId]);
+
   const getRecivedMessage = () => {
-    return chat.messages
-      .filter((x) => x.fromUser === userId)
-      .map((x) => ({ date: x.timeStamp, message: x.text }));
+    return chat.messages.filter((x) => x.fromUser === userId);
   };
 
   const getSendMessages = () => {
-    return chat.messages
-      .filter((x) => x.fromuser !== userId)
-      .map((x: any) => ({ date: x.timeStamp, message: x.text }));
+    return chat.messages.filter((x) => x.fromuser !== userId);
   };
 
   return (
@@ -40,7 +58,18 @@ export function ChatContainer({ chat, userId }: Props) {
         receivedMessage={getRecivedMessage()}
         sendmessage={getSendMessages()}
       />
-      <SendMessageContainer userId={userId} chatId={chat.id} />
+      <SendMessageContainer
+        onSendMessage={(message) => {
+          (async () => {
+            await sendMessage({
+              chatId: chat.id,
+              userId,
+              message,
+            });
+            await getDetailChat();
+          })();
+        }}
+      />
     </div>
   );
 }

@@ -31,6 +31,17 @@ export const getUsers = async (): Promise<any> => {
   }
 };
 
+export const getUser = async (e: { userId: string }): Promise<any> => {
+  try {
+    const response = await axios.get(baseUrl + `/users/${e.userId}`);
+    return response.data;
+  } catch (error) {
+    return {
+      errorMessage: "Error",
+    };
+  }
+};
+
 export const getChats = async (e: { userId: string }): Promise<any> => {
   try {
     const response = await axios.get(baseUrl + `/users/${e.userId}/chats`);

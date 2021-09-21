@@ -10,7 +10,6 @@ import {
   Tooltip,
 } from "@material-ui/core";
 import React from "react";
-import { User } from "../../models";
 import ExitToAppIcon from "@material-ui/icons/ExitToApp";
 
 const useStyles = makeStyles({
@@ -53,7 +52,7 @@ export function UserList(props: Props) {
         <div className={classes.listContainer}>
           <List component="nav">
             {chats.map((x) => (
-              <>
+              <div key={x.id}>
                 <ListItem
                   selected={x.id === currentGroupId}
                   button
@@ -68,7 +67,7 @@ export function UserList(props: Props) {
                   <ListItemText primary={x.title} />
                 </ListItem>
                 <Divider />
-              </>
+              </div>
             ))}
           </List>
         </div>

@@ -17,8 +17,8 @@ export interface Chat {
 }
 
 export interface Message {
-  date: string;
-  message: string;
+  timestamp: string;
+  text: string;
 }
 
 export type Status = "online" | "offline";
