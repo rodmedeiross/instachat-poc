@@ -55,14 +55,20 @@ export class ChatMessage {
   @PrimaryGeneratedColumn("uuid")
   id: string;
 
+  // @Column()
+  // chatId: string;
+
   @ManyToOne(() => Chat, (c) => c.messages)
   chat: Chat;
 
-  @Column()
-  timestamp: number;
+  @Column({ nullable: true })
+  timestamp: string;
 
   @Column()
   text: string;
+
+  // @Column()
+  // fromUserId: string;
 
   @ManyToOne(() => User, (c) => c.messages)
   fromUser: User;

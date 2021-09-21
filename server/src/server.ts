@@ -134,7 +134,7 @@ createConnection()
         text,
         chat,
         fromUser: user,
-        timestamp: 0,
+        timestamp: new Date().toUTCString(),
       });
 
       chatMessage = await chatMessagesRepository.save(chatMessage);
@@ -152,4 +152,4 @@ createConnection()
       console.log("🚀 Server started in port 3333!");
     });
   })
-  .catch((err) => console.log("TypeORM connection error: ", error));
+  .catch((err) => console.log("TypeORM connection error: ", err));
