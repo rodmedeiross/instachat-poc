@@ -19,6 +19,7 @@ export interface Chat {
 export interface Message {
   timestamp: string;
   text: string;
+  fromUser: User;
 }
 
 export type Status = "online" | "offline";
