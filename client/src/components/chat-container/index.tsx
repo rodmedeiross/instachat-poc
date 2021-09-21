@@ -20,7 +20,6 @@ interface Props {
 
 export function ChatContainer({ user }: Props) {
   const classes = useStyles();
-  const [currentMessage, setCurrentMessage] = React.useState<string>();
 
   return (
     <div className={classes.container}>
@@ -28,7 +27,10 @@ export function ChatContainer({ user }: Props) {
         receivedMessage={user.receivedMessages}
         sendmessage={user.sendMessages}
       />
-      <SendMessageContainer />
+      <SendMessageContainer
+        userId={user.id}
+        chatId={"6149291fb19dad1f1969630c"}
+      />
     </div>
   );
 }

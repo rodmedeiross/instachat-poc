@@ -39,9 +39,6 @@ interface Props {
 
 export function UserList(props: Props) {
   const { users, onUserSelect, currentUserId } = props || {};
-
-  console.log(users);
-
   const classes = useStyles();
 
   return (

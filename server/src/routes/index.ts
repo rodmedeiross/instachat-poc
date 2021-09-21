@@ -1,7 +1,7 @@
 import { Router } from "express";
-import usersRouter from "./users.routes";
+import messageRouter from "./messages.routes";
 
 const routes: Router = Router();
-routes.use("/users", usersRouter);
+routes.use(messageRouter);
 
 export default routes;

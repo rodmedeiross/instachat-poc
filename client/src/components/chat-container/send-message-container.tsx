@@ -7,6 +7,7 @@ import {
 } from "@material-ui/core";
 import React from "react";
 import SendIcon from "@material-ui/icons/Send";
+import { sendMessage } from "../../API";
 
 const useStyles = makeStyles(() => ({
   container: {
@@ -15,8 +16,15 @@ const useStyles = makeStyles(() => ({
   },
 }));
 
-export function SendMessageContainer() {
+interface Props {
+  chatId: string;
+  userId: string;
+}
+
+export function SendMessageContainer(props: Props) {
   const classes = useStyles();
+  const { chatId, userId } = props || {};
+  const [currentMessage, setCurrentMessage] = React.useState<string>("");
 
   return (
     <div className={classes.container}>
@@ -24,9 +32,22 @@ export function SendMessageContainer() {
         <OutlinedInput
           multiline
           rows={3}
+          value={currentMessage}
+          onChange={(e) => setCurrentMessage(e.target.value)}
           endAdornment={
             <InputAdornment position="end">
-              <IconButton onClick={() => {}} onMouseDown={() => {}}>
+              <IconButton
+                onClick={async () => {
+                  await sendMessage({
+                    chatId,
+                    userId,
+                    message: currentMessage,
+                  });
+                }}
+                onMouseDown={() => {
+                  setCurrentMessage("");
+                }}
+              >
                 <SendIcon />
               </IconButton>
             </InputAdornment>

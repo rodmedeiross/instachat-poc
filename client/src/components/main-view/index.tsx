@@ -6,6 +6,7 @@ import { UserList } from "../user-list";
 import users from "../../infrastructure/user-mock.json";
 import { Typography } from "@material-ui/core";
 import { User } from "../../models";
+import { getChats } from "../../API";
 
 const useStyles = makeStyles({
   container: {
@@ -30,6 +31,20 @@ const useStyles = makeStyles({
 
 export default function MainView(props: any) {
   const classes = useStyles();
+  const [chats, setChats] = React.useState<any>([]);
+
+  React.useEffect(() => {
+    const setup = async () => {
+      try {
+        const res = await getChats({ userId: "61492917ad6f5a68ca26e2cf" });
+        setChats(res);
+        console.log(res);
+      } catch (e) {
+        alert("Error");
+      }
+    };
+    setup();
+  }, []);
 
   const [currentUserId, setCurrentUserId] = useState<string>();
 
