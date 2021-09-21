@@ -25,8 +25,8 @@ export class User {
   @Column({ nullable: true })
   avatar?: string;
 
-  @ManyToMany(() => Chat, (c) => c.users)
-  chats: Chat[];
+  @OneToMany(() => UserToChat, (c) => c.user)
+  userToChats: UserToChat[];
 
   @OneToMany(() => ChatMessage, (c) => c.fromUser)
   messages: ChatMessage[];
@@ -37,9 +37,8 @@ export class Chat {
   @PrimaryGeneratedColumn("uuid")
   id: string;
 
-  @ManyToMany(() => User)
-  @JoinTable("chatUser")
-  users: User[];
+  @OneToMany(() => UserToChat, (c) => c.chat)
+  userToChats: UserToChat[];
 
   @OneToMany(() => ChatMessage, (m) => m.chat)
   messages: ChatMessage[];
@@ -78,3 +77,21 @@ export class ChatMessage {
 //   @Column()
 //   chatId: string;
 // }
+
+@Entity("user_to_chat_id")
+export class UserToChat {
+  @PrimaryGeneratedColumn("uuid")
+  public userToChatId!: string;
+
+  @Column()
+  public chatId!: string;
+
+  @ManyToOne(() => Chat, (c) => c.userToChats)
+  public chat!: Chat;
+
+  @Column()
+  public userId!: string;
+
+  @ManyToOne(() => User, (u) => u.userToChats)
+  public user!: User;
+}

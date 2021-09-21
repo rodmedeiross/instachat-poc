@@ -2,10 +2,10 @@ import "reflect-metadata";
 
 import express, { Express, Request, Response } from "express";
 import cors from "cors";
-import { createConnection } from "typeorm";
-import { User, ChatMessage, Chat } from "./models/Entities";
+import { createConnection, Equal } from "typeorm";
+import { User, ChatMessage, Chat, UserToChat } from "./models/Entities";
 
-const winston = require("winston");
+const winston: any = require("winston");
 const expressWinston = require("express-winston");
 
 // create typeorm connection
@@ -14,6 +14,7 @@ createConnection()
     const userRepository = connection.getRepository(User);
     const chatRepository = connection.getRepository(Chat);
     const chatMessagesRepository = connection.getRepository(ChatMessage);
+    const userToChatRepository = connection.getRepository(UserToChat);
 
     const app: Express = express();
 
@@ -68,51 +69,77 @@ createConnection()
       async function (req: Request, res: Response) {
         const userIds = [...new Set([...req.body.userIds, req.params.userId])];
 
+        let userToChatIds = [];
         const users = [];
         for (let i = 0; i < userIds.length; i++) {
           users.push(await userRepository.findOne(userIds[i]));
         }
 
-        console.log(users);
-        const chat = await chatRepository.create({
-          users,
-          messages: [],
+        let chat = await chatRepository.create({
           title: req.body.title,
         });
+        chat = await chatRepository.save(chat);
 
-        return res.send(chat);
+        console.log("Chat ID: " + JSON.stringify(chat));
+
+        for (let i = 0; i < userIds.length; i++) {
+          userToChatIds.push({
+            chat: chat,
+            user: users[i],
+          });
+        }
+
+        userToChatIds = await userToChatRepository.save(userToChatIds);
+
+        return res.send({ chat, userToChatIds });
       }
     );
 
     app.get("/users/:userId/chats", async (req: Request, res: Response) => {
-      const user = await chatRepository.findOne({
-        id: req.params.userId,
-        // relations: ["chats"],
+      const usersWithChats = await userToChatRepository.find({
+        userId: Equal(req.params.userId),
       });
 
-      const aux = user.chats.map((x) => ({ ...x, messages: undefined }));
+      console.log(usersWithChats);
+      const chats = [];
+      for (let i = 0; i < usersWithChats.length; i++) {
+        chats.push(await chatRepository.findOne(usersWithChats[i].chatId));
+      }
+
+      const aux = chats.map((x) => ({ ...x, messages: undefined }));
 
       res.json(aux);
     });
 
-    app.get("/users/:userId/chats/:chatId", (req, res) => {
-      const userId = req.params.userId;
-      const chatId = req.params.chatId;
-      res.json(chats.find((x) => x.id == chatId));
+    app.get("/users/:userId/chats/:chatId", async (req, res) => {
+      const chat = await chatRepository.findOne(req.params.chatId);
+
+      chat.messages = await connection
+        .createQueryBuilder()
+        .relation(Chat, "messages")
+        .of(chat) // you can use just post id as well
+        .loadMany();
+
+      res.json(chat);
     });
 
-    app.put("/users/:userId/chats/:chatId", (req, res) => {
+    app.put("/users/:userId/chats/:chatId", async (req, res) => {
+      const { text } = req.body;
       const { userId, chatId } = req.params;
-      const chat = chats.find((x) => x.id == chatId);
-      const { message } = req.body;
-      const { users } = chat || {};
-      chat?.messages.push({
-        text: message,
-        messageId: "s", //TODO generate id
-        chatId: chatId,
-        timestamp: Date.now(),
-        from: userId,
+
+      let chat = await chatRepository.findOne(chatId);
+      let user = await userRepository.findOne(userId);
+
+      let chatMessage = await chatMessagesRepository.create({
+        text,
+        chat,
+        fromUser: user,
+        timestamp: 0,
       });
+
+      chatMessage = await chatMessagesRepository.save(chatMessage);
+
+      res.json(chatMessage);
     });
 
     app.use(function (err, req, res, next) {
