@@ -1,6 +1,6 @@
 import React from "react";
 import { makeStyles } from "@material-ui/core/styles";
-import { User } from "../../models";
+import { Chat } from "../../models";
 import { Avatar, Theme, Typography } from "@material-ui/core";
 
 const useStyles = makeStyles((theme: Theme) => ({
@@ -25,24 +25,24 @@ const useStyles = makeStyles((theme: Theme) => ({
 }));
 
 interface Props {
-  user?: User;
+  chat?: Chat;
 }
 
 export function ChatHeader(props: Props) {
   const classes = useStyles();
-  const { user } = props || {};
+  const { chat } = props || {};
 
   return (
     <div className={classes.container}>
-      <Avatar className={classes.small} alt={user?.name} src="" />
+      <Avatar className={classes.small} alt={chat?.id} src="" />
       <div className={classes.description}>
-        <Typography>{user?.name}</Typography>
-        <Typography
+        <Typography>{chat?.title}</Typography>
+        {/* <Typography
           variant="caption"
           style={{ color: user?.status == "online" ? "#4caf50" : "#f44336" }}
         >
           {user?.status}
-        </Typography>
+        </Typography> */}
       </div>
     </div>
   );

@@ -6,7 +6,8 @@ import { UserList } from "../user-list";
 import users from "../../infrastructure/user-mock.json";
 import { Typography } from "@material-ui/core";
 import { User } from "../../models";
-import { getChats } from "../../API";
+import { getChats, getDetailChats } from "../../API";
+import { getUsers } from "../../API";
 
 const useStyles = makeStyles({
   container: {
@@ -32,44 +33,67 @@ const useStyles = makeStyles({
 export default function MainView(props: any) {
   const classes = useStyles();
   const [chats, setChats] = React.useState<any>([]);
+  const [users, setUsers] = React.useState<any>([]);
+  const [currentUserId, setCurrentUserId] = React.useState<any>();
+  const [currentChatId, setCurrentChat] = useState<string>();
+  const [detailChat, setDetailChat] = useState<any>();
 
   React.useEffect(() => {
     const setup = async () => {
       try {
-        const res = await getChats({ userId: "61492917ad6f5a68ca26e2cf" });
-        setChats(res);
-        console.log(res);
+        const receivedUsers = await getUsers();
+        setUsers(receivedUsers);
+        setCurrentUserId(receivedUsers[0].id);
+        setChats(await getChats({ userId: receivedUsers[0].id }));
       } catch (e) {
         alert("Error");
       }
     };
+
     setup();
   }, []);
 
-  const [currentUserId, setCurrentUserId] = useState<string>();
+  React.useEffect(() => {
+    const getDetailChat = async () => {
+      try {
+        setDetailChat(
+          await getDetailChats({
+            userId: currentUserId,
+            chatId: currentChatId as string,
+          })
+        );
+      } catch (e) {
+        alert("Error");
+      }
+    };
 
-  const handleCurrentUse = (userId: string) => {
-    setCurrentUserId(userId);
+    if (currentChatId) {
+      getDetailChat();
+    }
+  }, [currentChatId]);
+
+  const handleCurrentGroup = (chatId: string) => {
+    setCurrentChat(chatId);
   };
 
-  const getUserById = (id?: string) => users.find((x) => x.id === id);
+  const chat = chats.find((x: any) => x.id === currentChatId);
 
   return (
     <div className={classes.container}>
       <div className={classes.list}>
         <UserList
-          onUserSelect={handleCurrentUse}
-          users={users}
-          currentUserId={currentUserId}
+          chats={chats}
+          onGroupSelect={handleCurrentGroup}
+          currentGroupId={currentChatId}
         />
       </div>
-      {currentUserId ? (
+      {currentChatId && detailChat ? (
         <>
           <div className={classes.userheader}>
-            <ChatHeader user={getUserById(currentUserId)} />
+            <ChatHeader chat={chat} />
           </div>
           <div className={classes.chatContainer}>
-            <ChatContainer user={getUserById(currentUserId) as User} />
+            <ChatContainer userId={currentUserId} chat={detailChat} />
           </div>
         </>
       ) : (

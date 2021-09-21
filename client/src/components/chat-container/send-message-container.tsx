@@ -26,6 +26,16 @@ export function SendMessageContainer(props: Props) {
   const { chatId, userId } = props || {};
   const [currentMessage, setCurrentMessage] = React.useState<string>("");
 
+  const handleSubmit = async () => {
+    setCurrentMessage("");
+
+    await sendMessage({
+      chatId,
+      userId,
+      message: currentMessage,
+    });
+  };
+
   return (
     <div className={classes.container}>
       <FormControl style={{ flexGrow: 1 }} variant="outlined">
@@ -36,18 +46,7 @@ export function SendMessageContainer(props: Props) {
           onChange={(e) => setCurrentMessage(e.target.value)}
           endAdornment={
             <InputAdornment position="end">
-              <IconButton
-                onClick={async () => {
-                  await sendMessage({
-                    chatId,
-                    userId,
-                    message: currentMessage,
-                  });
-                }}
-                onMouseDown={() => {
-                  setCurrentMessage("");
-                }}
-              >
+              <IconButton onClick={handleSubmit}>
                 <SendIcon />
               </IconButton>
             </InputAdornment>

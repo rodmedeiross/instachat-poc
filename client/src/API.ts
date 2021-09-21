@@ -10,8 +10,19 @@ export const sendMessage = async (e: {
   try {
     const response = await axios.put(
       baseUrl + `/users/${e.userId}/chats/${e.chatId}`,
-      { message: e.message }
+      { text: e.message }
     );
+    return response.data;
+  } catch (error) {
+    return {
+      errorMessage: "Error",
+    };
+  }
+};
+
+export const getUsers = async (): Promise<any> => {
+  try {
+    const response = await axios.get(baseUrl + `/users`);
     return response.data;
   } catch (error) {
     return {

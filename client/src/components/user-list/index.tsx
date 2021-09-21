@@ -32,34 +32,40 @@ const useStyles = makeStyles({
 });
 
 interface Props {
-  users: User[];
-  currentUserId?: string;
-  onUserSelect(userId: string): void;
+  currentGroupId?: string;
+  onGroupSelect(userId: string): void;
+  chats: {
+    id: string;
+    title: string;
+    lastMessage?: string;
+  }[];
 }
 
 export function UserList(props: Props) {
-  const { users, onUserSelect, currentUserId } = props || {};
+  const { onGroupSelect, currentGroupId, chats } = props || {};
   const classes = useStyles();
+
+  console.log(chats);
 
   return (
     <>
       <div className={classes.container}>
         <div className={classes.listContainer}>
           <List component="nav">
-            {users.map((x) => (
+            {chats.map((x) => (
               <>
                 <ListItem
-                  selected={x.id === currentUserId}
+                  selected={x.id === currentGroupId}
                   button
                   alignItems="flex-start"
                   onClick={() => {
-                    onUserSelect(x.id);
+                    onGroupSelect(x.id);
                   }}
                 >
                   <ListItemAvatar>
-                    <Avatar alt={x.name} src={x.picture} />
+                    <Avatar alt={x.title} />
                   </ListItemAvatar>
-                  <ListItemText primary={x.name} />
+                  <ListItemText primary={x.title} />
                 </ListItem>
                 <Divider />
               </>
