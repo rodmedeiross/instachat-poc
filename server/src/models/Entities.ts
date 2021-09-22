@@ -5,7 +5,7 @@ import {
   ManyToMany,
   ManyToOne,
   JoinTable,
-  PrimaryGeneratedColumn,
+  PrimaryGeneratedColumn, JoinColumn,
 } from "typeorm";
 
 @Entity("users")
@@ -17,13 +17,13 @@ export class User {
   name: string;
 
   @Column()
-  userName: string;
+  email: string;
 
   @Column()
   password: string;
 
   @Column({ nullable: true })
-  avatar?: string;
+  image?: string;
 
   @OneToMany(() => UserToChat, (c) => c.user)
   userToChats: UserToChat[];
@@ -55,10 +55,11 @@ export class ChatMessage {
   @PrimaryGeneratedColumn("uuid")
   id: string;
 
-  // @Column()
-  // chatId: string;
+  @Column()
+  chatId: string;
 
   @ManyToOne(() => Chat, (c) => c.messages)
+  @JoinColumn({name : 'chatId', referencedColumnName: 'id'})
   chat: Chat;
 
   @Column({ nullable: true })
@@ -67,10 +68,11 @@ export class ChatMessage {
   @Column()
   text: string;
 
-  // @Column()
-  // fromUserId: string;
+  @Column()
+  fromUserId: string;
 
   @ManyToOne(() => User, (c) => c.messages)
+  @JoinColumn({name : 'fromUserId', referencedColumnName: 'id'})
   fromUser: User;
 }
 

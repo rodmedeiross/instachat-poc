@@ -1,6 +1,6 @@
 import { makeStyles } from "@material-ui/styles";
 import React, { useState } from "react";
-import { Chat } from "../../models";
+import {Chat, User} from "../../models";
 import { ChatView } from "./chat-view";
 import { SendMessageContainer } from "./send-message-container";
 import "react-chat-elements/dist/main.css";
@@ -18,9 +18,10 @@ const useStyles = makeStyles(() => ({
 interface Props {
   chatId: string;
   userId: string;
+  users: User[];
 }
 
-export function ChatContainer({ chatId, userId }: Props) {
+export function ChatContainer({ users, chatId, userId }: Props) {
   const classes = useStyles();
 
   const [chat, setChat] = useState<any>({ messages: [] });
@@ -44,12 +45,19 @@ export function ChatContainer({ chatId, userId }: Props) {
     }
   }, [chatId]);
 
+
+
   const getRecivedMessage = () => {
-    return chat.messages.filter((x) => x.fromUser === userId);
+    return chat.messages
+        .filter((x) => x.fromUserId !== userId)
+        .map(x => ({...x, fromUserName: users.find(u => u.id == x.fromUserId)?.name }));
   };
 
   const getSendMessages = () => {
-    return chat.messages.filter((x) => x.fromuser !== userId);
+    debugger
+    return chat.messages
+        .filter((x) => x.fromUserId === userId)
+        .map(x => ({...x, fromUserName: users.find(u => u.id == x.fromUserId)?.name }));
   };
 
   return (

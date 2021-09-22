@@ -1,159 +1,178 @@
 import "reflect-metadata";
 
-import express, { Express, Request, Response } from "express";
+import express, {Express, Request, Response} from "express";
 import cors from "cors";
-import { createConnection, Equal } from "typeorm";
-import { User, ChatMessage, Chat, UserToChat } from "./models/Entities";
+import {createConnection, Equal} from "typeorm";
+import {User, ChatMessage, Chat, UserToChat} from "./models/Entities";
+import {body} from "express-validator";
+import {getUserController} from "./controllers/users-controller";
 
 const winston: any = require("winston");
 const expressWinston = require("express-winston");
 
-const usersRoute = require("./routes/users-route");
 
 // create typeorm connection
 createConnection()
-  .then(async (connection) => {
-    const userRepository = connection.getRepository(User);
-    const chatRepository = connection.getRepository(Chat);
-    const chatMessagesRepository = connection.getRepository(ChatMessage);
-    const userToChatRepository = connection.getRepository(UserToChat);
+    .then(async (connection) => {
+        const userRepository = connection.getRepository(User);
+        const chatRepository = connection.getRepository(Chat);
+        const chatMessagesRepository = connection.getRepository(ChatMessage);
+        const userToChatRepository = connection.getRepository(UserToChat);
 
-    const app: Express = express();
+        const app: Express = express();
 
-    //more options here - https://github.com/bithavoc/express-winston#request-logging
-    app.use(
-      expressWinston.logger({
-        transports: [new winston.transports.Console()],
-        format: winston.format.combine(winston.format.json()),
-        meta: false,
-        msg: "HTTP  ",
-        expressFormat: true,
-        colorize: false,
-        ignoreRoute: function (req, res) {
-          return false;
-        },
-      })
-    );
+        //more options here - https://github.com/bithavoc/express-winston#request-logging
+        app.use(
+            expressWinston.logger({
+                transports: [new winston.transports.Console()],
+                format: winston.format.combine(winston.format.json()),
+                meta: false,
+                msg: "HTTP  ",
+                expressFormat: true,
+                colorize: false,
+                ignoreRoute: function (req, res) {
+                    return false;
+                },
+            })
+        );
 
-    app.use(express.json());
-    app.use(cors());
+        app.use(express.json());
+        app.use(cors());
 
-    app.use("/api/users", usersRoute);
-
-    app.get("/users", async (req: Request, res: Response) => {
-      const users = await userRepository.find();
-      res.json(users);
-    });
-
-    app.get("/users/:id", async function (req: Request, res: Response) {
-      const results = await userRepository.findOne(req.params.id);
-      return res.send(results);
-    });
-
-    app.post("/users", async function (req: Request, res: Response) {
-      const user = await userRepository.create(req.body);
-      const results = await userRepository.save(user);
-      return res.send(results);
-    });
-
-    app.put("/users/:id", async function (req: Request, res: Response) {
-      const user = await userRepository.findOne(req.params.id);
-      userRepository.merge(user, req.body);
-      const results = await userRepository.save(user);
-      return res.send(results);
-    });
-
-    app.delete("/users/:id", async function (req: Request, res: Response) {
-      const results = await userRepository.delete(req.params.id);
-      return res.send(results);
-    });
-
-    app.post(
-      "/users/:userId/chats",
-      async function (req: Request, res: Response) {
-        const userIds = [...new Set([...req.body.userIds, req.params.userId])];
-
-        let userToChatIds = [];
-        const users = [];
-        for (let i = 0; i < userIds.length; i++) {
-          users.push(await userRepository.findOne(userIds[i]));
-        }
-
-        let chat = await chatRepository.create({
-          title: req.body.title,
+        app.get("/users", async (req: Request, res: Response) => {
+            const users = await userRepository.find();
+            res.json(users);
         });
-        chat = await chatRepository.save(chat);
 
-        console.log("Chat ID: " + JSON.stringify(chat));
+        app.get("/users/:id", async function (req: Request, res: Response) {
+            const results = await userRepository.findOne(req.params.id);
+            return res.send(results);
+        });
 
-        for (let i = 0; i < userIds.length; i++) {
-          userToChatIds.push({
-            chat: chat,
-            user: users[i],
-          });
-        }
+        app.delete("/users/:id", async function (req: Request, res: Response) {
+            const results = await userRepository.delete(req.params.id);
+            return res.send(results);
+        });
 
-        userToChatIds = await userToChatRepository.save(userToChatIds);
+        app.post(
+            "/users/:userId/chats",
+            async function (req: Request, res: Response) {
 
-        return res.send({ chat, userToChatIds });
-      }
-    );
+                const userNames = req.params.userNames || [];
 
-    app.get("/users/:userId/chats", async (req: Request, res: Response) => {
-      const usersWithChats = await userToChatRepository.find({
-        userId: Equal(req.params.userId),
-      });
+                const userIds = [...new Set([...req.body.userIds, req.params.userId])];
 
-      console.log(usersWithChats);
-      const chats = [];
-      for (let i = 0; i < usersWithChats.length; i++) {
-        chats.push(await chatRepository.findOne(usersWithChats[i].chatId));
-      }
+                let userToChatIds: { chat: Chat, user: User }[] = [];
+                const users: User[] = [];
+                for (let i = 0; i < userIds.length; i++) {
+                    const usr = await userRepository.findOne(userIds[i]);
+                    if(usr) {
+                        users.push(usr);
+                    }
+                }
 
-      const aux = chats.map((x) => ({ ...x, messages: undefined }));
+                let chat = await chatRepository.create({
+                    title: req.body.title,
+                });
+                chat = await chatRepository.save(chat);
 
-      res.json(aux);
-    });
+                console.log("Chat ID: " + JSON.stringify(chat));
 
-    app.get("/users/:userId/chats/:chatId", async (req, res) => {
-      const chat = await chatRepository.findOne(req.params.chatId);
+                for (let i = 0; i < userIds.length; i++) {
+                    userToChatIds.push({
+                        chat: chat,
+                        user: users[i],
+                    });
+                }
 
-      chat.messages = await connection
-        .createQueryBuilder()
-        .relation(Chat, "messages")
-        .of(chat) // you can use just post id as well
-        .loadMany();
+                userToChatIds = await userToChatRepository.save(userToChatIds);
 
-      res.json(chat);
-    });
+                return res.send({chat, userToChatIds});
+            }
+        );
 
-    app.put("/users/:userId/chats/:chatId", async (req, res) => {
-      const { text } = req.body;
-      const { userId, chatId } = req.params;
+        app.get("/users/:userId/chats", async (req: Request, res: Response) => {
+            const usersWithChats = await userToChatRepository.find({
+                userId: Equal(req.params.userId),
+            });
 
-      let chat = await chatRepository.findOne(chatId);
-      let user = await userRepository.findOne(userId);
+            console.log(usersWithChats);
+            const chats = [];
+            for (let i = 0; i < usersWithChats.length; i++) {
+                chats.push(await chatRepository.findOne(usersWithChats[i].chatId));
+            }
 
-      let chatMessage = await chatMessagesRepository.create({
-        text,
-        chat,
-        fromUser: user,
-        timestamp: new Date().toUTCString(),
-      });
+            const aux = chats.map((x) => ({...x, messages: undefined}));
 
-      chatMessage = await chatMessagesRepository.save(chatMessage);
+            res.json(aux);
+        });
 
-      res.json(chatMessage);
-    });
+        app.get("/users/:userId/chats/:chatId", async (req, res) => {
+            const chat = await chatRepository.findOne(req.params.chatId);
 
-    app.use(function (err, req, res, next) {
-      console.error(err.message); // Log error message in our server's console
-      if (!err.statusCode) err.statusCode = 500; // If err has no specified error code, set error code to 'Internal Server Error (500)'
-      res.status(err.statusCode).send(err.message); // All HTTP requests must have a response, so let's send back an error with its status code and message
-    });
+            chat.messages = await connection
+                .createQueryBuilder()
+                .relation(Chat, "messages")
+                .of(chat) // you can use just post id as well
+                .loadMany();
 
-    app.listen(3333, () => {
-      console.log("🚀 Server started in port 3333!");
-    });
-  })
-  .catch((err) => console.log("TypeORM connection error: ", err));
+            res.json(chat);
+        });
+
+        app.put("/users/:userId/chats/:chatId", async (req, res) => {
+            const {text} = req.body;
+            const {userId, chatId} = req.params;
+
+            let chat = await chatRepository.findOne(chatId);
+            let user = await userRepository.findOne(userId);
+
+            let chatMessage = await chatMessagesRepository.create({
+                text,
+                chat,
+                fromUser: user,
+                timestamp: new Date().toUTCString(),
+            });
+
+            chatMessage = await chatMessagesRepository.save(chatMessage);
+
+            res.json(chatMessage);
+        });
+
+
+        const usersController = getUserController(connection);
+
+        const usersRoute = express.Router();
+        usersRoute.post(
+            "/login",
+            body("email").isEmail(),
+            body("password").isLength({min: 3, max: 20}),
+            usersController.login
+        );
+        usersRoute.post(
+            "/signup",
+            body("email").isEmail(),
+            body("password").isLength({min: 3, max: 20}),
+            body("name").isLength({min: 3, max: 12}),
+            usersController.signup
+        );
+        usersRoute.put(
+            "/edit",
+            body("username").isLength({min: 3, max: 12}),
+            usersController.edit
+        );
+        usersRoute.post("/guest", usersController.guest);
+        usersRoute.post("/verify", usersController.verify);
+
+        app.use('/api/users', usersRoute);
+
+        app.use(function (err, req, res, next) {
+            console.error(err.message); // Log error message in our server's console
+            if (!err.statusCode) err.statusCode = 500; // If err has no specified error code, set error code to 'Internal Server Error (500)'
+            res.status(err.statusCode).send(err.message); // All HTTP requests must have a response, so let's send back an error with its status code and message
+        });
+
+        app.listen(3333, () => {
+            console.log("🚀 Server started in port 3333!");
+        });
+    })
+    .catch((err) => console.log("TypeORM connection error: ", err));

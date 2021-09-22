@@ -4,6 +4,7 @@
     "experimentalDecorators": true,
     "noImplicitAny": false,
     "target": "es6",
+    "strictPropertyInitialization": false,
     "module": "commonjs",
     "outDir": "dist/js",
     "rootDir": "src",
