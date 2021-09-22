@@ -10,9 +10,20 @@ import {getUserController} from "./controllers/users-controller";
 const winston: any = require("winston");
 const expressWinston = require("express-winston");
 
+const connOptions = {
+    type: "postgres",
+    host: process.env   .POSTGRES_HOST,
+    url: `postgres://${process.env.POSTGRES_USER}:${process.env.POSTGRES_PASSWORD}@${process.env.POSTGRES_HOST}:${process.env.POSTGRES_PORT}/${process.env.POSTGRES_DB}`,
+    entities: [
+        User, Chat, ChatMessage, UserToChat
+    ],
+    synchronize: true,
+    logging: true
+};
+console.log(JSON.stringify(connOptions));
 
 // create typeorm connection
-createConnection()
+createConnection(connOptions)
     .then(async (connection) => {
         const userRepository = connection.getRepository(User);
         const chatRepository = connection.getRepository(Chat);
